@@ -1,0 +1,13 @@
+node_modules/
+.idea/
+.vscode/
+build/
+site/
+coverage
+artifacts
+cache
+coverage.json
+.log
+.env
+ganache.log
+.DS_Store
