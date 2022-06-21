@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Clutch Wallet. <https://www.clutchwallet.xyz>
+// Copyright (C) 2022 Clutch Wallet Inc. <https://clutchwallet.xyz>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-only
 
-pragma solidity 0.8.12;
+pragma solidity 0.7.6;
 
 interface Mooniswap {
     function deposit(uint256[2] memory, uint256[2] memory)

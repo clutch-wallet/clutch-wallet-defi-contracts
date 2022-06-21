@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Clutch Wallet. <https://www.clutchwallet.xyz>
+// Copyright (C) 2022 Clutch Wallet Inc. <https://clutchwallet.xyz>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 //
-// SPDX-License-Identifier: LGPL-3.0-only
+// SPDX-License-Identifier: LGPL-3.0-onlypragma solidity 0.7.6;
 
-pragma solidity 0.8.12;
+pragma solidity 0.7.6;
 
 interface IAmunVault {
     function deposit(uint256, uint16) external;

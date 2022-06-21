@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.12;
+pragma experimental ABIEncoderV2;
+pragma solidity 0.7.6;
 
 interface IAmunBasket {
     function joinPool(uint256 _amount, uint16 _referral) external;

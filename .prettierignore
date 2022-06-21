@@ -1,4 +1,12 @@
-node_modules
+node_modules/
+.idea/
+.vscode/
+build/
 coverage
 artifacts
-build
+cache
+*.json
+*.js
+*.log
+*.env
+*.md

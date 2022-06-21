@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.12;
+pragma solidity 0.7.6;
 
 interface IGUniPool {
     function mint(uint256 mintAmount, address receiver)

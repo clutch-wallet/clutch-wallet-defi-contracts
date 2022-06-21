@@ -3,7 +3,9 @@
     "browser": true,
     "es6": true
   },
-  "extends": ["airbnb-base"],
+  "extends": [
+    "airbnb-base"
+  ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
@@ -17,9 +19,6 @@
     "no-undef": "off",
     "prefer-const": "off",
     "no-console": "off",
-    "linebreak-style": "off",
-    "operator-linebreak": "off",
-    "object-curly-newline": "off",
-    "arrow-body-style": "off"
+    "linebreak-style": "off"
   }
 }

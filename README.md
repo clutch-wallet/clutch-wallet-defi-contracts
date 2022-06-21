@@ -1,87 +1,102 @@
-**Clutch DeFi Contracts**
+**Clutch Wallet DeFi Contract** is designed for precise DeFi portfolio accounting. To put it simply, DeFi SDK is the on-chain *balanceOf* for DeFi protocols.
 
-Clutch DeFi Portfolio Management Smart Contracts is an open-source system of smart contracts allows you to track balances on diffenert protocols and execute trades with ERC20 tokens. Query user assets and debt deposited in DeFi protocols like Maker, Aave, dYdX, etc. Get the underlying components of complex derivative ERC20 tokens.
+## Features
 
-## Swap Features
+#### 💥Query user assets and debt deposited in DeFi protocols like *Maker, Aave, dYdX*, etc. 
+> How much debt does `0xdead..beef` have on Compound?
+#### 📊Get the underlying components of complex derivative ERC20 tokens 
+> How much `cUSDC` vs `ETH` does `ETHMACOAPY` have?
+#### ✨Interact with multiple DeFi protocols in a unified way (coming soon)
+> See [What’s next for DeFi SDK](#whats-next-for-defi-sdk-)
 
-* Trade (Transfer, Swap) any ERC20 token
-* Two types of amounts: absolute (usual amount) and relative (percentage of balance)
-* Three types of `permit()` functions for approving tokens in the same transaction (EIP2612, DAI-like, Yearn-like)
-* Two types of swaps: with fixed input amount or fixed output amount
-* Two types of fees:
-  * **protocol fee** managed by the **Router** contract owner with possibility of one-time discounts requiring signature of an address with the special role
-  * **marketplace fee** managed by the transaction creator
-* Relayed transactions requiring just an EIP712 signature of the user
-* Relayed transactions requiring just an EIP712 signature of the user
+## Table of Contents
 
-## Installation
+  - [DeFi SDK architecture](#defi-sdk-architecture)
+  - [Supported protocols](#supported-protocols)
+  - [How to add your adapter](#how-to-add-your-adapter)
+  - [What’s next for DeFi SDK](#whats-next-for-defi-sdk-)
+  - [Security vulnerabilities](#security-vulnerabilities-)
 
-Run `npm install` or `yarn` to install all the dependencies.
+## DeFi SDK Architecture
 
-## Development
+- **ProtocolAdapter** is a special contract for every protocol. Its main purpose is to wrap all the protocol interactions.
+There are different types of protocol adapters: "Asset" adapter returns the amount of the account's tokens held on the protocol and the "Debt" adapter returns the amount of the account's debt to the protocol. Some protocols do not use "simple" ERC20 tokens but instead have complex derivatives, for example the Compound protocol has CTokens. The **ProtocolAdapter** contract also provides information about the type of tokens used within it.
+- **TokenAdapter** is a contract for every derivative token type (e.g cTokens, aTokens, yTokens, etc.)
+Its main purpose is to provide ERC20-style token metadata as well as information about the underlying ERC20 tokens (like DAI for cDAI). Namely, it provides addresses, types and rates of underlying tokens.
+- **AdapterRegistry** is a contract that a) maintains a list of *ProtocolAdapters* and *TokenAdapters* and b) is called to fetch user balances.
 
-### Truffle Dashboard (Recommended) ###
-Run `yarn truffle-dashboard` to start the Truffle Dashboard.
+More detailed documentation about contracts can be found in [adapters](../../wiki/Adapters) and [AdapterRegistry](../../wiki/AdapterRegistry) documentation.
 
-Run `yarn deploy:router:truffle-dashboard` to deploy the **Router** contract.
-Sign deployment transaction in your browser at `http://localhost:24012/`.
+## Supported Protocols
 
-Fill in address of newly deployed contract to `scripts/deployment.js`.
+| Protocol Name | Description | Protocol Adapters | Token Adapters |
+| :-----------: | :---------: | :---------------: | :------------: |
+| [Aave](./contracts/adapters/aave) | Decentralized lending & borrowing protocol. | [Asset adapter](./contracts/adapters/aave/AaveAssetAdapter.sol) <br> [Debt adapter](contracts/adapters/aave/AaveDebtAdapter.sol) | ["AToken"](./contracts/adapters/aave/AaveTokenAdapter.sol) |
+| [Balancer](./contracts/adapters/balancer) | Non-custodial portfolio manager, liquidity provider, and price sensor. | [Asset adapter](./contracts/adapters/balancer/BalancerAdapter.sol) supports all Balancer pools | ["Balancer Pool Token"](./contracts/adapters/aave/BalancerTokenAdapter.sol) |
+| [Bancor](./contracts/adapters/bancor) | Automated liquidity protocol. | [Asset adapter](./contracts/adapters/bancor/BancorAdapter.sol) supports Bancor pools starting from version 11 | ["SmartToken"](./contracts/adapters/aave/BancorTokenAdapter.sol) |
+| [Compound](./contracts/adapters/compound) | Decentralized lending & borrowing protocol. | [Asset adapter](./contracts/adapters/compound/CompoundAssetAdapter.sol) <br> [Debt adapter](./contracts/adapters/compound/CompoundDebtAdapter.sol) | ["CToken"](./contracts/adapters/compound/CompoundTokenAdapter.sol) |
+| [Curve](./contracts/adapters/curve) | Exchange liquidity pool for stablecoin trading. Supports Compound, Y, and BUSD pools. | [Asset adapter](contracts/adapters/curve/CurveAssetAdapter.sol) | ["Curve Pool Token"](contracts/adapters/curve/CurveTokenAdapter.sol) |
+| [DeFi Money Market](./contracts/adapters/dmm) | Crypto through revenue-producing real world assets. | [Asset adapter](./contracts/adapters/dmm/DmmAssetAdapter.sol) | ["MToken"](contracts/adapters/dmm/DmmTokenAdapter.sol) |
+| [dYdX](./contracts/adapters/dydx) | Decentralized trading platform. All 4 markets (WETH, SAI, USDC, DAI) are supported. | [Asset adapter](./contracts/adapters/dydx/DyDxAssetAdapter.sol) <br> [Debt adapter](./contracts/adapters/dydx/DyDxDebtAdapter.sol) | — |
+| [Idle](./contracts/adapters/idle) | Yield aggregator for lending platforms. | [Asset adapter](./contracts/adapters/idle/IdleAdapter.sol) | ["IdleToken"](./contracts/adapters/idle/IdleTokenAdapter.sol) |
+| [yearn.finance (v2/v3)](contracts/adapters/yearn) | Yield aggregator for lending platforms. Protocol adapter is duplicated for v2 and v3 versions of protocol. | [Asset adapter](contracts/adapters/yearn/YearnAdapter.sol) | ["YToken"](contracts/adapters/yearn/YearnTokenAdapter.sol) |
+| [Chai](./contracts/adapters/maker) | A simple ERC20 wrapper over the Dai Savings Protocol. | [Asset adapter](./contracts/adapters/maker/ChaiAdapter.sol) | ["Chai token"](./contracts/adapters/maker/ChaiTokenAdapter.sol) |
+| [Dai Savings Protocol](./contracts/adapters/maker) | Decentralized lending protocol. | [Asset adapter](./contracts/adapters/maker/DSRAdapter.sol) | — |
+| [Multi-Collateral Dai](./contracts/adapters/maker) | Collateralized loans on Maker. | [Asset adapter](./contracts/adapters/maker/MCDAssetAdapter.sol) <br> [Debt adapter](./contracts/adapters/maker/MCDDebtAdapter.sol) | — |
+| [PoolTogether](./contracts/adapters/poolTogether) | Decentralized no-loss lottery. Supports SAI, DAI, and USDC pools. | [Asset adapter](./contracts/adapters/poolTogether/PoolTogetherAdapter.sol) | ["PoolTogether pool"](./contracts/adapters/poolTogether/PoolTogetherTokenAdapter.sol) |
+| [Synthetix](./contracts/adapters/synthetix) | Synthetic assets protocol. Asset adapter returns amount of SNX locked as collateral. | [Asset adapter](./contracts/adapters/synthetix/SynthetixAssetAdapter.sol) <br> [Debt adapter](./contracts/adapters/synthetix/SynthetixDebtAdapter.sol) | — |
+| [TokenSets](./contracts/adapters/tokenSets) | TokenSets. Automated asset management strategies. | [Asset adapter](./contracts/adapters/tokenSets/TokenSetsAdapter.sol) | ["SetToken"](./contracts/adapters/tokenSets/TokenSetsTokenAdapter.sol) |
+| [Uniswap V1](./contracts/adapters/uniswap) | Automated liquidity protocol. | [Asset adapter](contracts/adapters/uniswap/UniswapV1AssetAdapter.sol) supports all Uniswap pools | ["Uniswap V1 Pool Token"](./contracts/adapters/uniswap/UniswapV1TokenAdapter.sol) |
+| [0x Staking](./contracts/adapters/zrx) | Liquidity rewards for staking ZRX. | [Asset adapter](./contracts/adapters/zrx/ZrxAdapter.sol) | — |
 
-The same instruction applies to the **SimpleCaller** contract with `yarn deploy:sc:truffle-dashboard` command.
+## How to Add Your Adapter
 
-After filling in fee beneficiary for the chosen network in `scripts/deployment.js`, `yarn initialize:router:truffle-dashboard` command may be run.
+The full instructions on how to add a custom adapter to the **AdapterRegistry** contract may be found in our [wiki](../../wiki/Adding-new-adapters).
 
-Run `yarn verify` to verify contract on any block explorer.
+## What’s Next for DeFi SDK? 🚀
 
-### Without Truffle Dashboard ###
-To deploy router on `<NETWORK_NAME>` (For example: `ropsten`), `yarn deploy:router:ropsten`
+This first version of DeFi SDK is for read-only accounting purposes. Our next step is to introduce Interactive Adapters that allow users to make cross-protocol transactions from a single interface. We are incredibly excited to work with developers, users and the wider DeFi community to make these integrations as secure and accessible as possible. Watch this space, because the “De” in DeFi is about to get a whole lot more user-friendly!
 
-Make sure to edit `package.json` `verify:router:<NETWORK_NAME>` command. Pass deployed address to the `<CONTRACT_ADDRESS>` parameter.
+## Security Vulnerabilities 🛡
 
-To verify router on `<NETWORK_NAME>`, `yarn verify:router:<NETWORK_NAME>`
+If you discover a security vulnerability within DeFi SDK, please send us an e-mail at contact@clutchwallet.xyz. All security vulnerabilities will be promptly addressed.
 
-To initialize router on `<NETWORK_NAME>`, `yarn initialize:router:<NETWORK_NAME>`
+## Dev Notes
 
-When we initialize, we will set default fee percentage and default beneficiary address to receive the fee.
+This project uses Truffle and web3js for all Ethereum interactions and testing.
 
-To deploy simple caller on `<NETWORK_NAME>` (For example: `ropsten`), `yarn deploy:sc:<NETWORK_NAME>`
+#### Set environment
+Rename `.env.sample` file to `.env`, and fill in the env variables. 
 
-Make sure to edit `package.json` `verify:sc:<NETWORK_NAME>` command. Pass deployed address to the `<CONTRACT_ADDRESS>` parameter.
+`PRIVATE_KEY` and `INFURA_API_KEY` are required for `core` and `adapters` tests. 
+`PRIVATE_KEY` is required for `interactiveAdapters` tests.
 
-To verify simple caller on `<NETWORK_NAME>`, `yarn verify:sc:<NETWORK_NAME>`
+#### Compile contracts
 
-The respective `<BLOCK_EXPLORER>_API_KEY` (For example: `ETHERSCAN_API_KEY`) filled in `.env` file is required for this step.
-See the `hardhat.config.ts` file for the details (`etherscan` field of `config` variable uses these API keys).
+`npm run compile`
 
-### Testing & Coverage
+#### Run tests
 
-The **Router** contract and its dependencies is fully covered with tests.
+`npm run test:core` for `core` tests.
+`npm run test:adapters` for `adapters` tests.
+`npm run test:interactiveAdapters` for `interactiveAdapters` tests.
 
-Run `yarn test` and `yarn coverage` to run tests or coverage respectively.
-`INFURA_API_KEY` filled in `.env` file is required for this step.
-`REPORT_GAS` filled in `.env` file enables/disables gas reports during tests.
+#### Run Solidity code coverage
 
-### Slither Tests
+`npm run coverage`
 
-Run `yarn slither` to see slither test outputs.
+Currently, unsupported files are ignored.
 
-It will not work on Windows environment, make sure you are on Linux or Mac.
+#### Run Solidity and JS linters
 
-### Linting
+`npm run lint`
 
-Run `yarn lint` for both JS and Solidity linters.
+Currently, unsupported files are ignored.
 
-Run `yarn lint:eslint` and `yarn lint:solhint` to run linter for JS and Solidity separately.
+#### Run all the migrations scripts
 
-### Serve Docs
+`npm run deploy:network`, `network` is either `development` or `mainnet`.
 
-`yarn docs:serve`
+## License
 
-## Adapters
-
-Coming Soon
-
-### How to Add Your Adapters
-
-Coming Soon
+All smart contracts are released under GNU LGPLv3.
