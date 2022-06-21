@@ -1,21 +1,29 @@
 {
   "extends": "solhint:all",
-  "plugins": ["prettier"],
   "rules": {
-    "mark-callable-contracts": ["off"],
-    "reason-string": ["error", { "maxLength": 50 }],
-    "function-max-lines": ["error", 99],
-    "max-line-length": ["error", 99],
-    "compiler-version": ["error", "0.8.12"],
-    "private-vars-leading-underscore": ["off"],
-    "const-name-snakecase": ["off"],
-    "func-visibility": [
-      "warn",
-      {
-        "ignoreConstructors": true
-      }
+    "mark-callable-contracts": [
+      "off"
     ],
-    "prettier/prettier": "warn",
-    "comprehensive-interface": ["off"]
+    "reason-string": [
+      "error",
+      { "maxLength" : 50 }
+    ],
+    "function-max-lines": [
+      "error",
+      149
+    ],
+    "compiler-version": [
+      "error",
+      "0.6.5"
+    ],
+    "private-vars-leading-underscore": [
+      "off"
+    ],
+    "const-name-snakecase": [
+      "off"
+    ],
+    "comprehensive-interface": [
+      "off"
+    ]
   }
 }
